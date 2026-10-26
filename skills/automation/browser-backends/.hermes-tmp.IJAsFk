@@ -1,0 +1,90 @@
+## Google Maps scraper for lead generation — Playwright + Python on Oracle Linux 9 aarch64
+
+### What was built
+
+A standalone Python scraper (`/tmp/gmaps_scraper.py`) that uses Playwright Chromium to extract business listings from Google Maps for outreach: name, address, phone, website, rating, review count.
+
+### Dependencies (all pre-installed on this host)
+
+- `playwright` (Python) — already in Hermes venv: `pip3 install playwright`
+- Chromium browser — `python3 -m playwright install chromium` (downloads ARM fallback build)
+- `requests` — pre-installed
+
+### Verified install sequence
+
+```bash
+# Install playwright Python package (if not present)
+pip3 install playwright
+
+# Install Chromium browser for playwright
+python3 -m playwright install chromium
+# On Oracle Linux 9 aarch64 this downloads a fallback ubuntu24.04-arm64 build
+
+# Verify
+python3 -c "from playwright.sync_api import sync_playwright; print('Playwright ready')"
+```
+
+### Running the scraper
+
+```bash
+# Single keyword, 10 results
+python3 /tmp/gmaps_scraper.py "coffee shops in New York" -n 10
+
+# Multiple keywords, save to specific file
+python3 /tmp/gmaps_scraper.py \
+  "restaurants in New York" \
+  "law firms in New York" \
+  "real estate agencies in New York" \
+  -n 15 --wait 3 \
+  -o /home/opc/leads/all_leads.csv
+```
+
+### CLI options
+
+| Flag | Default | Meaning |
+|------|---------|---------|
+| `-n, --max` | 50 | Max results per keyword |
+| `-o, --output` | auto (CSV in /tmp/gmaps-leads/) | Output file path |
+| `--json` | False | Output JSON instead of CSV |
+| `--visible` | False | Show browser window (debugging) |
+| `-w, --wait` | 5 | Seconds between keywords |
+| `--delay` | 1.5 | Scroll delay in seconds |
+
+### What it extracts per business
+
+`name, keyword, address, phone, website, rating, reviews, category, source, scraped_at`
+
+### Output format
+
+- CSV (default) + JSON copy in same directory
+- Merged master file: concatenate all CSVs, deduplicate by (name, keyword)
+
+### Known limitations
+
+- Google Maps blocks automated browsers — the scraper handles captcha detection but may fail on aggressive scraping
+- Phone/website extraction requires clicking into each business detail page (slower, limited to 20 per keyword by default)
+- Address extraction from card view is heuristic — may miss or misparse
+- Rate limiting: use `--wait` between keywords to avoid blocks
+
+### Common failure modes
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| `Timeout waiting for results` | Google blocking or slow load | Increase timeout, add `--wait`, try different keyword |
+| `Captcha/block detected` | Too many requests from IP | Wait, use different IP, reduce rate |
+| `No results and no block page` | Selector mismatch (Google changed DOM) | Inspect `div[role="article"]` count; update selectors |
+| 0 phone/website | Card view doesn't show details | Click into each business (already implemented, limit 20) |
+
+### Architecture notes
+
+- Playwright Chromium launched with `--no-sandbox`, `--disable-dev-shm-usage`, `--disable-blink-features=AutomationControlled`
+- User agent spoofed to desktop Chrome 120
+- Search directed to `https://www.google.com/maps/search/<keyword>` (not the Maps homepage)
+- Results loaded by scrolling; extraction from `div[role="article"]` elements
+- Detail page visit: click card → wait 3s → extract phone/website → go back
+
+### File locations
+
+- Scraper script: `/tmp/gmaps_scraper.py`
+- Leads output dir: `/tmp/gmaps-leads/` (per-keyword CSV+JSON)
+- Merged master: `/home/opc/leads/all_leads.csv`
