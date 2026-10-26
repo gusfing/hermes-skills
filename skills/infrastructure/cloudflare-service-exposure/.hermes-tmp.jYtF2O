@@ -1,0 +1,164 @@
+# Docker Service Restart on Oracle Linux 9 — Reference
+
+## When data volumes are lost
+
+If `docker compose down` removes named volumes (PostgreSQL data, app data), restarting requires fresh initialization. This reference covers the two services commonly hosted on this server.
+
+## BillionMail restart (fresh DB)
+
+### What survives
+- Docker images (all 7 containers)
+- `.env` file (`/opt/BillionMail/.env`)
+- Configuration files (`conf/`, `ssl/`, `postgresql-socket/`, etc.)
+- `vmail-data/`, `webmail-data/`, `core-data/` directories
+
+### What is lost
+- PostgreSQL data volume (`postgresql-data/`) — all accounts, domains, settings
+- Redis data (sessions, cache)
+
+### After restart: what to recreate
+
+**Admin account** — BillionMail's fresh PostgreSQL may or may not have the admin seeded (depends on whether `init.sql` ran). Check first:
+
+```bash
+sudo docker exec billionmail-pgsql-billionmail-1 psql -U billionmail -d billionmail -c "SELECT username, status FROM account WHERE username = 'billion';"
+```
+
+If no row returned, create with bcrypt hash:
+
+```bash
+PYTHON_HASH=$(python3 -c "import bcrypt; print(bcrypt.hashpw(b'billion', bcrypt.gensalt(rounds=10)).decode())")
+sudo docker exec billionmail-pgsql-billionmail-1 psql -U billionmail -d billionmail << EOSQL
+INSERT INTO account (username, password, email, status, language, last_login_time, create_time, update_time)
+VALUES ('billion', '${PYTHON_HASH//\"/}', 'admin@kawaki.co.in', 1, 'en', 0, EXTRACT(epoch FROM now())::int, EXTRACT(epoch FROM now())::int);
+EOSQL
+```
+
+**Domain** — re-add if lost:
+
+```bash
+sudo docker exec billionmail-pgsql-billionmail-1 psql -U billionmail -d billionmail << 'SQL'
+INSERT INTO domain (domain, a_record, mailboxes, mailbox_quota, quota, rate_limit, create_time, active)
+VALUES ('mail.kawaki.co.in', '137.23.36.156', 50, 5368709120, 10485760, 12, EXTRACT(EPOCH FROM NOW())::integer, 1)
+ON CONFLICT (domain) DO NOTHING;
+SQL
+```
+
+### Login credentials (from .env)
+- Username: value of `ADMIN_USERNAME` (default: `billion`)
+- Password: value of `ADMIN_PASSWORD` (default: `billion`)
+- URL: `http://127.0.0.1:8080/billion/api/login` (note `/billion` SafePath prefix)
+
+### Verify
+```bash
+curl -s -X POST http://127.0.0.1:8080/billion/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"billion","password":"billion"}'
+# Expected: {"success":true,"code":0,"msg":"Login successful"}
+```
+
+## OpenWA restart (fresh data)
+
+### Pre-built image
+The OpenWA image (`openwa-openwa:latest`) is a standalone NestJS + TypeScript build that serves the API and dashboard on the same port. It does NOT require the full docker-compose (docker-proxy, postgres, redis, minio are optional).
+
+### Production mode requires strong API_MASTER_KEY
+OpenWA in production mode (`NODE_ENV=production`) enforces a minimum 32-character `API_MASTER_KEY`. Short or default keys are rejected at bootstrap with:
+
+```
+Error: Refusing to start in production: insecure or default value for API_MASTER_KEY 
+(below the 32-character minimum). Set strong, unique secrets (see .env.example).
+```
+
+**Fix:** generate a proper key before starting:
+
+```bash
+NEW_KEY=$(openssl rand -hex 32)
+# Use this as API_MASTER_KEY
+```
+
+Common insecure values that get rejected: `openwa-master-2026` (19 chars), `changeme`, `secret`, empty string.
+
+### Docker run (simpler than compose)
+
+When docker-compose has issues or you just need the API container:
+
+```bash
+sudo docker run -d --name openwa-api --restart unless-stopped \
+  -p 127.0.0.1:2785:2785 \
+  -e NODE_ENV=production \
+  -e PORT=2785 \
+  -e API_MASTER_KEY="<32+ char hex key>" \
+  -e ENGINE_TYPE=whatsapp-web.js \
+  -e PUPPETEER_HEADLESS=true \
+  -e DATABASE_TYPE=sqlite \
+  -e DATABASE_SYNCHRONIZE=true \
+  -v openwa-data:/app/data \
+  openwa-openwa:latest
+```
+
+### Verify
+```bash
+curl -s http://127.0.0.1:2785/api/health
+# Expected: {"status":"ok","timestamp":"..."}
+```
+
+### Data persistence
+OpenWA stores sessions and config in `/app/data` inside the container, backed by the `openwa-data` Docker volume. If the volume is removed, all WhatsApp sessions are lost and must re-authenticate via QR scan.
+
+## Nginx exposure (both services)
+
+### BillionMail nginx config
+```nginx
+server {
+    listen 80;
+    server_name billionmail.kawaki.co.in;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400s;
+    }
+}
+```
+
+### OpenWA nginx config
+```nginx
+server {
+    listen 80;
+    server_name openwa.kawaki.co.in;
+
+    location / {
+        proxy_pass http://127.0.0.1:2785;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400s;
+    }
+}
+```
+
+### SELinux note
+If nginx returns 502 when proxying to these ports, check SELinux:
+```bash
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+## Port summary
+
+| Service | Internal port | External (nginx) |
+|---------|--------------|------------------|
+| BillionMail core | 8080 | 80 (via billionmail.kawaki.co.in) |
+| OpenWA API | 2785 | 80 (via openwa.kawaki.co.in) |
+| BillionMail SMTP | 25/587/465 | direct (relay via Brevo on 587) |
+| BillionMail IMAP | 143/993 | direct |
