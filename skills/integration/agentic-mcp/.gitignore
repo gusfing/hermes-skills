@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Temp files
+tmpclaude*
+nul
+
+# Python
+__pycache__/
+*.pyc
+
+# AI context
+.claude/context/
+mcp-servers.json
+
+package-lock.json
+openspec/
+coverage/
