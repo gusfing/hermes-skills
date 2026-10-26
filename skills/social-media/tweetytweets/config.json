@@ -1,0 +1,49 @@
+{
+  "_readme": "Copy to config.json (git-ignored) and fill in. The agent asks the questions during onboarding; every field below is documented in README.md.",
+  "handle": "Kunalsharmadec6",
+  "premium": false,
+  "max_chars": 280,
+  "timezone": "Asia/Kolkata",
+  "_timezone_hint": "e.g. 'Asia/Kolkata', 'America/New_York', or 'local' for the machine's timezone",
+  "slots": [
+    "10:00",
+    "13:00",
+    "16:30",
+    "20:00"
+  ],
+  "jitter_minutes": 45,
+  "min_gap_hours": 3,
+  "ai_update_enabled": false,
+  "ai_update_slot": "16:00",
+  "ai_update_header": "Daily AI updates | Day {day}",
+  "research_hour": 11,
+  "window_hours": 36,
+  "subreddits": [
+    "LocalLLaMA",
+    "artificial",
+    "singularity",
+    "ChatGPTCoding",
+    "n8n",
+    "SideProject"
+  ],
+  "x_queries": [
+    "AI agents",
+    "AI coding",
+    "open source LLM",
+    "developer tools"
+  ],
+  "feeds": {
+    "techcrunch-ai": "https://techcrunch.com/category/artificial-intelligence/feed/",
+    "verge-ai": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+    "hn-frontpage": "https://hnrss.org/frontpage?points=150",
+    "arxiv-cs-ai": "https://export.arxiv.org/rss/cs.AI",
+    "simonwillison": "https://simonwillison.net/atom/everything/"
+  },
+  "require_verified_source": true,
+  "browser": {
+    "port": 9333,
+    "profile_dir": "/home/opc/.tweety-chrome",
+    "chrome_path": "",
+    "headless": false
+  }
+}
