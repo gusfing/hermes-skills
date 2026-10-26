@@ -1,0 +1,17 @@
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run adversarial unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Validate bundled Claude Code skills
+        run: python3 scripts/validate_skill.py --profile claude-code . examples/minimal examples/tool-using
+      - name: Validate portable example
+        run: python3 scripts/validate_skill.py --profile agentskills examples/portable-skill
