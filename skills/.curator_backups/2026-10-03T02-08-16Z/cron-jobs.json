@@ -1,0 +1,167 @@
+{
+  "jobs": [
+    {
+      "id": "417da92dfbc8",
+      "name": "Cookie health checker",
+      "prompt": "Run /opt/data/scripts/camofox_cookie_check.py and review the JSON output. If any account shows alert NOT equal to \"ok\", send the user a summary listing account, domain, alert, cookie_name, expires_at, and the recommended action: re-export fresh cookies for that account. If all accounts are ok, say everything is healthy and no action is needed.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "nous",
+      "model_snapshot": "stepfun/step-3.7-flash:free",
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "interval",
+        "minutes": 360,
+        "display": "every 360m"
+      },
+      "schedule_display": "every 360m",
+      "repeat": {
+        "times": null,
+        "completed": 220
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-07-28T07:37:19.796225+00:00",
+      "next_run_at": "2026-10-03T04:34:14.025593+00:00",
+      "last_run_at": "2026-10-02T22:34:14.025593+00:00",
+      "last_status": "error",
+      "last_error": "RuntimeError: [drift_skip:silent] Skipped to prevent unintended spend: global inference config drifted since this job was created (provider 'nous' -> 'custom'; model 'stepfun/step-3.7-flash:free' -> 'claude-opencode'), and this job is unpinned. No inference call was made. To run on the new config, on the host running Hermes pin it explicitly: `hermes cron edit 417da92dfbc8 --provider <provider> --model <model>` (or pin the original values to keep them). This alert is sent once; the job stays skipped until the config is pinned or restored. See #44585.",
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": [
+        "terminal",
+        "file"
+      ],
+      "workdir": null,
+      "fire_claim": null,
+      "last_dispatch": {
+        "scheduled_at": "2026-10-02T22:34:03.536704+00:00",
+        "dispatched_at": "2026-10-02T22:34:13.903184+00:00",
+        "lateness_seconds": 10.4,
+        "kind": "on_time"
+      },
+      "drift_alerted": true,
+      "failure_streak": 121
+    },
+    {
+      "id": "1c7be27c34bc",
+      "name": "Daily outreach report",
+      "prompt": "Deliver the daily Kawaki outreach report verbatim as the message body. Do not summarise, reword, or add commentary. If the report shows any halt, error, or a target marked SHORT, add one short line at the top saying so.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": "kawaki_daily_report.py",
+      "no_agent": true,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 4 * * *",
+        "display": "0 4 * * *"
+      },
+      "schedule_display": "0 4 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 2
+      },
+      "enabled": false,
+      "state": "paused",
+      "paused_at": "2026-10-02T09:00:33.260176+00:00",
+      "paused_reason": "User paused all LinkedIn and X automation 2026-10-02",
+      "created_at": "2026-10-01T08:29:15.873874+00:00",
+      "next_run_at": "2026-10-03T04:00:00+00:00",
+      "last_run_at": "2026-10-02T04:00:20.179413+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "failure_streak": 0,
+      "deliver": "origin",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "701672095",
+        "chat_name": "Kunal sharma",
+        "thread_id": null,
+        "user_id": "701672095",
+        "scope_id": null
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": null,
+      "last_dispatch": {
+        "scheduled_at": "2026-10-02T04:00:00+00:00",
+        "dispatched_at": "2026-10-02T04:00:18.909513+00:00",
+        "lateness_seconds": 18.9,
+        "kind": "on_time"
+      }
+    },
+    {
+      "id": "e608b0486ef1",
+      "name": "Schedule X posts",
+      "prompt": "Remind the owner (Kunal) that it's time to schedule the X posts. This is a reminder only — do NOT start, enable, or run any posting automation as part of this reminder.\n\nContext you need, since you have no chat history:\n- Outreach timers are currently STOPPED AND DISABLED on purpose (owner stopped all LinkedIn + X work on 2026-10-02). Do not re-enable them.\n- What the reminder should say, briefly:\n  1. Time to schedule tomorrow's X posts (8 feed + 2 community = 10/day).\n  2. Two known blockers: (a) the post pool is weak — 23 files averaging 153 chars, no numbers, no named tools, 18 of 23 already used and never rotated; (b) PROOF is empty, so posts cannot be written yet.\n  3. The single thing needed from the owner: three real facts — a client result, a number they cut, a time they saved.\n- Measured competitor benchmark for context: top X post in the niche got 366K views for opening with a verdict and no CTA, 22K for opening with a number plus a cost (\"$5,000/mo, 3 years, a burnout\"), 19K for a specific number plus a named niche.\n\nKeep it to a few lines. No essays. Do not post anything.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "custom",
+      "model_snapshot": "claude-opencode",
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "once",
+        "run_at": "2026-10-02T19:37:57.775562+00:00",
+        "display": "once in 10m"
+      },
+      "schedule_display": "once in 10m",
+      "repeat": {
+        "times": 1,
+        "completed": 1
+      },
+      "enabled": false,
+      "state": "completed",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-10-02T19:27:57.775625+00:00",
+      "next_run_at": null,
+      "last_run_at": "2026-10-02T19:38:19.108268+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "failure_streak": 0,
+      "deliver": "origin",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "701672095",
+        "chat_name": "Kunal sharma",
+        "thread_id": null,
+        "user_id": "701672095",
+        "scope_id": null
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "run_claim": null,
+      "fire_claim": null
+    }
+  ],
+  "updated_at": "2026-10-02T22:34:14.025981+00:00"
+}

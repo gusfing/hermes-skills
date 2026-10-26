@@ -1,0 +1,56 @@
+{
+  "jobs": [
+    {
+      "id": "417da92dfbc8",
+      "name": "Cookie health checker",
+      "prompt": "Run /opt/data/scripts/camofox_cookie_check.py and review the JSON output. If any account shows alert NOT equal to \"ok\", send the user a summary listing account, domain, alert, cookie_name, expires_at, and the recommended action: re-export fresh cookies for that account. If all accounts are ok, say everything is healthy and no action is needed.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "nous",
+      "model_snapshot": "stepfun/step-3.7-flash:free",
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "interval",
+        "minutes": 360,
+        "display": "every 360m"
+      },
+      "schedule_display": "every 360m",
+      "repeat": {
+        "times": null,
+        "completed": 192
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-07-28T07:37:19.796225+00:00",
+      "next_run_at": "2026-09-26T04:27:18.180684+00:00",
+      "last_run_at": "2026-09-25T22:27:18.180684+00:00",
+      "last_status": "error",
+      "last_error": "RuntimeError: [drift_skip:silent] Skipped to prevent unintended spend: global inference config drifted since this job was created (model 'stepfun/step-3.7-flash:free' -> 'upstage/solar-pro4:free'), and this job is unpinned. No inference call was made. To run on the new config, on the host running Hermes pin it explicitly: `hermes cron edit 417da92dfbc8 --provider <provider> --model <model>` (or pin the original values to keep them). This alert is sent once; the job stays skipped until the config is pinned or restored. See #44585.",
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": [
+        "terminal",
+        "file"
+      ],
+      "workdir": null,
+      "fire_claim": null,
+      "last_dispatch": {
+        "scheduled_at": "2026-09-25T22:27:05.808502+00:00",
+        "dispatched_at": "2026-09-25T22:27:18.108907+00:00",
+        "lateness_seconds": 12.3,
+        "kind": "on_time"
+      },
+      "drift_alerted": true,
+      "failure_streak": 93
+    }
+  ],
+  "updated_at": "2026-09-25T22:27:18.181006+00:00"
+}

@@ -1,0 +1,114 @@
+{
+  "jobs": [
+    {
+      "id": "417da92dfbc8",
+      "name": "Cookie health checker",
+      "prompt": "Run /opt/data/scripts/camofox_cookie_check.py and review the JSON output. If any account shows alert NOT equal to \"ok\", send the user a summary listing account, domain, alert, cookie_name, expires_at, and the recommended action: re-export fresh cookies for that account. If all accounts are ok, say everything is healthy and no action is needed.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": "nous",
+      "model_snapshot": "stepfun/step-3.7-flash:free",
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "interval",
+        "minutes": 360,
+        "display": "every 360m"
+      },
+      "schedule_display": "every 360m",
+      "repeat": {
+        "times": null,
+        "completed": 276
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-07-28T07:37:19.796225+00:00",
+      "next_run_at": "2026-10-17T04:45:32.051853+00:00",
+      "last_run_at": "2026-10-16T22:45:32.051853+00:00",
+      "last_status": "error",
+      "last_error": "RuntimeError: [drift_skip:silent] Skipped to prevent unintended spend: global inference config drifted since this job was created (model 'stepfun/step-3.7-flash:free' -> 'poolside/laguna-xs-2.1:free'), and this job is unpinned. No inference call was made. To run on the new config, on the host running Hermes pin it explicitly: `hermes cron edit 417da92dfbc8 --provider <provider> --model <model>` (or pin the original values to keep them). This alert is sent once; the job stays skipped until the config is pinned or restored. See #44585.",
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": [
+        "terminal",
+        "file"
+      ],
+      "workdir": null,
+      "fire_claim": null,
+      "last_dispatch": {
+        "scheduled_at": "2026-10-16T22:45:19.474300+00:00",
+        "dispatched_at": "2026-10-16T22:45:30.981185+00:00",
+        "lateness_seconds": 11.5,
+        "kind": "on_time"
+      },
+      "drift_alerted": true,
+      "failure_streak": 177
+    },
+    {
+      "id": "1c7be27c34bc",
+      "name": "Daily outreach report",
+      "prompt": "Deliver the daily Kawaki outreach report verbatim as the message body. Do not summarise, reword, or add commentary. If the report shows any halt, error, or a target marked SHORT, add one short line at the top saying so.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "provider_snapshot": null,
+      "model_snapshot": null,
+      "base_url": null,
+      "script": "kawaki_daily_report.py",
+      "no_agent": true,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 4 * * *",
+        "display": "0 4 * * *"
+      },
+      "schedule_display": "0 4 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 2
+      },
+      "enabled": false,
+      "state": "paused",
+      "paused_at": "2026-10-02T09:00:33.260176+00:00",
+      "paused_reason": "User paused all LinkedIn and X automation 2026-10-02",
+      "created_at": "2026-10-01T08:29:15.873874+00:00",
+      "next_run_at": "2026-10-03T04:00:00+00:00",
+      "last_run_at": "2026-10-02T04:00:20.179413+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "failure_streak": 0,
+      "deliver": "origin",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "701672095",
+        "chat_name": "Kunal sharma",
+        "thread_id": null,
+        "user_id": "701672095",
+        "scope_id": null
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": null,
+      "last_dispatch": {
+        "scheduled_at": "2026-10-02T04:00:00+00:00",
+        "dispatched_at": "2026-10-02T04:00:18.909513+00:00",
+        "lateness_seconds": 18.9,
+        "kind": "on_time"
+      }
+    }
+  ],
+  "updated_at": "2026-10-16T22:45:32.052202+00:00"
+}
